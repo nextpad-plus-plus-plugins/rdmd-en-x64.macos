@@ -21,14 +21,16 @@ target_link_libraries(rdmd PRIVATE "-framework Cocoa")
 target_compile_options(rdmd PRIVATE
     -Wall -Wno-unused-parameter -fvisibility=hidden
     $<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>)
-set_target_properties(rdmd PROPERTIES PREFIX "" SUFFIX ".dylib")
+# Host loads plugins as <folder>/<folder>.dylib (NppPluginManager.mm:243), and
+# this plugin's folder is "rdmd-en-x64" — so the dylib MUST be rdmd-en-x64.dylib.
+set_target_properties(rdmd PROPERTIES PREFIX "" SUFFIX ".dylib" OUTPUT_NAME "rdmd-en-x64")
 target_link_options(rdmd PRIVATE "-Wl,-current_version,${PROJECT_VERSION}")
 
 # Install (real plugins dir). Folder name = dylib base name (no ".macos").
 # Menu-only plugin: no toolbar icons (the Windows original ships none — its .rc
 # carries only VERSIONINFO). The bundled "hello" starter templates live in
 # resources/ next to the dylib (resolved via dladdr at runtime).
-set(PLUGIN_INSTALL_DIR "$ENV{HOME}/Library/Application Support/Nextpad++/plugins/rdmd")
+set(PLUGIN_INSTALL_DIR "$ENV{HOME}/Library/Application Support/Nextpad++/plugins/rdmd-en-x64")
 install(TARGETS rdmd DESTINATION "${PLUGIN_INSTALL_DIR}")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/hello"
         DESTINATION "${PLUGIN_INSTALL_DIR}/resources")
